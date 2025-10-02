@@ -13,7 +13,7 @@ public class Venta {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "venta_seq")
     @SequenceGenerator(name = "venta_seq", sequenceName = "venta_id_seq", allocationSize = 1)
-    private Long id;
+    private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", nullable = false, unique = true)

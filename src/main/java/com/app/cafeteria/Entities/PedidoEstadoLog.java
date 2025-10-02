@@ -14,7 +14,7 @@ public class PedidoEstadoLog {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pedido_estado_log_seq")
     @SequenceGenerator(name = "pedido_estado_log_seq", sequenceName = "pedido_estado_log_id_seq", allocationSize = 1)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", nullable = false)

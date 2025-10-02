@@ -6,4 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.app.cafeteria.entities.MetodoPago;
 
 @Repository
-public interface MetodoPagoRepository extends JpaRepository<MetodoPago, Long> {}
+public interface MetodoPagoRepository extends JpaRepository<MetodoPago, Integer> {}

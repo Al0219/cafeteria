@@ -7,4 +7,4 @@ import org.springframework.stereotype.Repository;
 import com.app.cafeteria.entities.TipoMesa;
 
 @Repository
-public interface TipoMesaRepository extends JpaRepository<TipoMesa, Long> {}
+public interface TipoMesaRepository extends JpaRepository<TipoMesa, Integer> {}

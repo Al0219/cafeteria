@@ -10,7 +10,7 @@ public class Mesa {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "mesa_seq")
     @SequenceGenerator(name = "mesa_seq", sequenceName = "mesa_id_seq", allocationSize = 1)
-    private Long id;
+    private Integer id;
 
     @Column(length = 25, nullable = false, unique = true)
     private String nombre;

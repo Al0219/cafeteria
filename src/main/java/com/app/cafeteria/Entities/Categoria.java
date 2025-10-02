@@ -10,7 +10,7 @@ public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categoria_seq")
     @SequenceGenerator(name = "categoria_seq", sequenceName = "categoria_id_seq", allocationSize = 1)
-    private Long id;
+    private Integer id;
 
     @Column(length = 50, nullable = false, unique = true)
     private String nombre;

@@ -12,7 +12,7 @@ public class PedidoDetalle {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pedido_detalle_seq")
     @SequenceGenerator(name = "pedido_detalle_seq", sequenceName = "pedido_detalle_id_seq", allocationSize = 1)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", nullable = false)

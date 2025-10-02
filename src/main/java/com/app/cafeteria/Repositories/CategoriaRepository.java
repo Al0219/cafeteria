@@ -6,4 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.app.cafeteria.entities.Categoria;
 
 @Repository
-public interface CategoriaRepository extends JpaRepository<Categoria, Long> {}
+public interface CategoriaRepository extends JpaRepository<Categoria, Integer> {}

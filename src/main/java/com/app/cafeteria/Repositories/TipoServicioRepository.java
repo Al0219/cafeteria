@@ -6,4 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.app.cafeteria.entities.TipoServicio;
 
 @Repository
-public interface TipoServicioRepository extends JpaRepository<TipoServicio, Long> {}
+public interface TipoServicioRepository extends JpaRepository<TipoServicio, Integer> {}

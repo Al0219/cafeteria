@@ -6,4 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.app.cafeteria.entities.PedidoDetalle;
 
 @Repository
-public interface PedidoDetalleRepository extends JpaRepository<PedidoDetalle, Long> {}
+public interface PedidoDetalleRepository extends JpaRepository<PedidoDetalle, Integer> {}

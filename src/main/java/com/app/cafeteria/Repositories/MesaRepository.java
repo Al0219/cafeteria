@@ -6,4 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.app.cafeteria.entities.Mesa;
 
 @Repository
-public interface MesaRepository extends JpaRepository<Mesa, Long> {}
+public interface MesaRepository extends JpaRepository<Mesa, Integer> {}
