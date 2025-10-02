@@ -1,8 +1,9 @@
-package com.app.cafeteria.Repositories;
+package com.app.cafeteria.repositories;
 
-import com.app.cafeteria.Entities.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.app.cafeteria.entities.Producto;
 
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Long> {}

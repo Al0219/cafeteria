@@ -1,4 +1,4 @@
-package com.app.cafeteria.Entities;
+package com.app.cafeteria.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

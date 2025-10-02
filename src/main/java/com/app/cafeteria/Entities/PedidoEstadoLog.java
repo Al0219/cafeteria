@@ -1,11 +1,11 @@
-package com.app.cafeteria.Entities;
+package com.app.cafeteria.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.OffsetDateTime;
 
-import com.app.cafeteria.Entities.enums.EstadoPedido;
+import com.app.cafeteria.entities.enums.EstadoPedido;
 
 @Entity
 @Table(name = "pedido_estado_log")

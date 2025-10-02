@@ -1,3 +1,3 @@
-package com.app.cafeteria.Entities.enums;
+package com.app.cafeteria.entities.enums;
 
 public enum EstadoPedido { RECIBIDO, PREPARANDO, LISTO, ENTREGADO }
