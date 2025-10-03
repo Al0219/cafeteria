@@ -17,4 +17,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     boolean existsByDpi(String dpi);
 
     Optional<Usuario> findByUsuario(String usuario);
+
+    Optional<Usuario> findByEmail(String email);
 }

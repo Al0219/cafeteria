@@ -115,6 +115,15 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<PedidoResponse> listarPedidosPorEstado(EstadoPedido estado) {
+        EstadoPedido filtro = estado != null ? estado : EstadoPedido.RECIBIDO;
+        return pedidoRepository.findByEstado(filtro).stream()
+                .map(pedido -> toResponse(pedido, pedidoDetalleRepository.findByPedidoId(pedido.getId())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public PedidoResponse actualizarPedido(Integer id, PedidoUpdateRequest request) {
         Pedido pedido = pedidoRepository.findById(id)
@@ -122,11 +131,11 @@ public class PedidoServiceImpl implements PedidoService {
         Usuario usuario = obtenerUsuario(request.usuarioId());
         OffsetDateTime ahora = OffsetDateTime.now(ZoneOffset.UTC);
 
-        boolean requiereModoEdicion = request.detalles() != null
+        boolean requiereEdicion = request.detalles() != null
                 || request.notas() != null
                 || request.mesaId() != null
                 || request.clienteNombre() != null;
-        if (requiereModoEdicion && pedido.getEstado() != EstadoPedido.RECIBIDO) {
+        if (requiereEdicion && pedido.getEstado() != EstadoPedido.RECIBIDO) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pedido ya no puede modificarse en el estado actual");
         }
 
@@ -151,10 +160,28 @@ public class PedidoServiceImpl implements PedidoService {
         }
 
         if (request.nuevoEstado() != null) {
-            manejarCambioEstado(pedido, request.nuevoEstado(), usuario, ahora);
+            manejarCambioEstado(pedido, request.nuevoEstado(), usuario, ahora, false);
         } else {
             pedido.setActualizadoEn(ahora);
         }
+
+        Pedido actualizado = pedidoRepository.save(pedido);
+        List<PedidoDetalle> detalles = pedidoDetalleRepository.findByPedidoId(actualizado.getId());
+        return toResponse(actualizado, detalles);
+    }
+
+    @Override
+    @Transactional
+    public PedidoResponse cambiarEstadoCocina(Integer id, EstadoPedido nuevoEstado, Integer usuarioId) {
+        if (nuevoEstado == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debe especificar el nuevo estado");
+        }
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
+        Usuario usuario = obtenerUsuario(usuarioId);
+        OffsetDateTime ahora = OffsetDateTime.now(ZoneOffset.UTC);
+
+        manejarCambioEstado(pedido, nuevoEstado, usuario, ahora, true);
 
         Pedido actualizado = pedidoRepository.save(pedido);
         List<PedidoDetalle> detalles = pedidoDetalleRepository.findByPedidoId(actualizado.getId());
@@ -167,8 +194,8 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
 
-        if (pedido.getEstado() != EstadoPedido.LISTO) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se pueden cerrar pedidos en estado LISTO");
+        if (pedido.getEstado() != EstadoPedido.ENTREGADO) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pedido debe estar en estado ENTREGADO antes de cerrarse");
         }
         if (Boolean.TRUE.equals(pedido.getVendido())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El pedido ya fue cerrado");
@@ -177,11 +204,9 @@ public class PedidoServiceImpl implements PedidoService {
         Usuario usuario = obtenerUsuario(request.usuarioId());
         OffsetDateTime ahora = OffsetDateTime.now(ZoneOffset.UTC);
 
-        pedido.setEstado(EstadoPedido.ENTREGADO);
         pedido.setVendido(true);
         pedido.setActualizadoEn(ahora);
         Pedido actualizado = pedidoRepository.save(pedido);
-        registrarLog(actualizado, EstadoPedido.ENTREGADO, usuario, ahora);
 
         List<PedidoDetalle> detalles = pedidoDetalleRepository.findByPedidoId(actualizado.getId());
         return toResponse(actualizado, detalles);
@@ -236,19 +261,21 @@ public class PedidoServiceImpl implements PedidoService {
         }
     }
 
-    private void manejarCambioEstado(Pedido pedido, EstadoPedido nuevoEstado, Usuario usuario, OffsetDateTime ahora) {
+    private void manejarCambioEstado(Pedido pedido, EstadoPedido nuevoEstado, Usuario usuario, OffsetDateTime ahora, boolean permitirEntregado) {
         EstadoPedido estadoActual = pedido.getEstado();
         if (nuevoEstado == estadoActual) {
             pedido.setActualizadoEn(ahora);
             return;
         }
+
         EstadoPedido siguiente = SIGUIENTE_ESTADO.get(estadoActual);
         if (siguiente == null || siguiente != nuevoEstado) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transicion de estado no permitida");
         }
-        if (nuevoEstado == EstadoPedido.ENTREGADO) {
+        if (nuevoEstado == EstadoPedido.ENTREGADO && !permitirEntregado) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Use el endpoint de cierre para marcar como entregado");
         }
+
         pedido.setEstado(nuevoEstado);
         pedido.setActualizadoEn(ahora);
         registrarLog(pedido, nuevoEstado, usuario, ahora);
@@ -318,3 +345,5 @@ public class PedidoServiceImpl implements PedidoService {
         );
     }
 }
+
+
