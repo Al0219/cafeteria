@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.app.cafeteria.entities.Producto;
 
 @Repository
-public interface ProductoRepository extends JpaRepository<Producto, Integer> {}
+public interface ProductoRepository extends JpaRepository<Producto, Integer> {
+
+    boolean existsByCategoriaIdAndNombreIgnoreCase(Integer categoriaId, String nombre);
+}
