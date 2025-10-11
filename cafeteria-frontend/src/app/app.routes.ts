@@ -7,9 +7,12 @@ import { OrdersListComponent } from './orders/orders-list.component';
 import { OrdersCashierListComponent } from './orders2/orders-cashier-list.component';
 import { SaleFormComponent } from './sales/sale-form.component';
 import { KitchenListComponent } from './kitchen/kitchen-list.component';
+import { TableListComponent } from './tables/table-list.component';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent, title: 'Iniciar sesión | Yumil Kool' },
+  { path: 'home', redirectTo: 'mesas', pathMatch: 'full' }, // Redirect /home to /mesas
+  { path: 'mesas', component: TableListComponent, title: 'Control de Mesas' },
   { path: 'usuarios', component: UserListComponent, title: 'Control de usuarios' },
   { path: 'menu', component: MenuListComponent, title: 'Control del menú' },
   { path: 'cocina', component: KitchenListComponent, title: 'Control de pedidos en cocina' },

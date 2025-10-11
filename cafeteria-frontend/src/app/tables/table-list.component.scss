@@ -1,0 +1,93 @@
+body {
+    background-color: #f5f0e1;
+    font-family: sans-serif;
+    margin: 0;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1em;
+    background-color: #3a3a3a;
+    color: white;
+}
+
+.header-btn {
+    background-color: #f5f0e1;
+    border: none;
+    padding: 0.8em 1.5em;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 0 0.5em;
+    font-weight: bold;
+}
+
+.header-btn.dark {
+    background-color: black;
+    color: white;
+}
+
+main {
+    padding: 2em;
+}
+
+.mesas-header {
+    margin-bottom: 1em;
+}
+
+.filter-container {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.tables-container {
+    position: relative;
+    height: 600px; /* Ajusta esto según sea necesario */
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    margin-top: 2em;
+}
+
+.table {
+    position: absolute;
+    padding: 1.5em 2em;
+    border: none;
+    color: white;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    width: 120px; /* Ancho fijo para las mesas */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Posicionamiento de las mesas */
+/* These will be handled dynamically by [style.top] and [style.left] in HTML */
+/* #barra1 { top: 10%; left: 20%; width: 180px; } */
+/* #mesa2 { top: 35%; left: 30%; } */
+/* #mesa1 { top: 50%; left: 10%; } */
+/* #mesa3 { top: 65%; left: 30%; } */
+
+/* #mesa4 { top: 20%; left: 60%; } */
+/* #mesa5 { top: 45%; left: 70%; } */
+/* #mesa6 { top: 60%; left: 85%; } */
+/* #barra2 { top: 75%; left: 65%; width: 180px; } */
+
+/* Estados de las mesas */
+.libre {
+    background-color: #28a745; /* Verde */
+}
+
+.reservada {
+    background-color: #ffc107; /* Amarillo */
+}
+
+.ocupada {
+    background-color: #dc3545; /* Rojo */
+}

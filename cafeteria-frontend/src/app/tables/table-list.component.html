@@ -1,0 +1,37 @@
+<header>
+    <div class="header-buttons">
+        <button class="header-btn" (click)="goToPedidos()">PEDIDOS</button>
+        <button class="header-btn" (click)="goToControlPedidos()">CONTROL DE PEDIDOS</button>
+        <button class="header-btn" (click)="goBack()">REGRESAR</button>
+    </div>
+    <div class="user-buttons">
+        <button class="header-btn dark" (click)="logout()">CERRAR SESIÓN</button>
+    </div>
+</header>
+
+<main>
+    <div class="mesas-header">
+        <h2>MESAS:</h2>
+        <div class="filter-container">
+            <span>Filtrar</span>
+            <select id="estado-filtro" [(ngModel)]="estadoFilter" (change)="onEstadoChange($event)">
+                <option value="todas">TODAS</option>
+                <option value="libre">LIBRES</option>
+                <option value="reservada">RESERVADAS</option>
+                <option value="ocupada">OCUPADAS</option>
+            </select>
+            <input type="text" placeholder="Nombre de la mesa" [(ngModel)]="searchQuery" (input)="onSearchChange($event)">
+        </div>
+    </div>
+
+    <div class="tables-container">
+        <button *ngFor="let mesa of filteredMesas" class="table" 
+                [id]="mesa.nombre.replace(' ', '').toLowerCase()" 
+                [attr.data-state]="mesa.activo ? 'libre' : 'ocupada'" 
+                [ngClass]="mesa.activo ? 'libre' : 'ocupada'"
+                [style.top.%]="mesa.topPosition"
+                [style.left.%]="mesa.leftPosition">
+            {{ mesa.nombre }}
+        </button>
+    </div>
+</main>
