@@ -1,7 +1,7 @@
 <section class="wrapper">
   <nav class="hotbar" aria-label="Módulos">
     <a class="chip" routerLink="/pedir">PEDIR</a>
-    <a class="chip active" routerLink="/pedidos">PEDIDOS</a>
+    <a class="chip active" routerLink="/pedidos2">PEDIDOS</a>
     <a class="chip" routerLink="/menu">MENÚ</a>
     <a class="chip" routerLink="/cocina">COCINA</a>
     <a class="chip" routerLink="/usuarios">USUARIOS</a>
@@ -13,14 +13,8 @@
   </header>
 
   <div class="toolbar">
-    <input
-      type="search"
-      placeholder="Buscar por No. pedido, mesa o cliente..."
-      [ngModel]="search()"
-      (ngModelChange)="search.set($event)"
-      class="search"
-      aria-label="Buscar"
-    />
+    <input type="search" placeholder="Buscar por No. pedido, mesa o cliente..."
+           [ngModel]="search()" (ngModelChange)="search.set($event)" class="search" aria-label="Buscar" />
     <div class="role-filter">
       <label class="sr-only" for="mesaSelect">Mesa</label>
       <select id="mesaSelect" [ngModel]="mesaFilter()" (ngModelChange)="mesaFilter.set($event)">
@@ -68,7 +62,8 @@
               <span *ngIf="o.vendido" class="chip-sold">Vendido</span>
             </td>
             <td class="row-actions" data-label="Acciones">
-              <button *ngIf="o.estado === 'RECIBIDO'" class="btn small" (click)="$event.stopPropagation(); onEdit(o)">Editar</button>
+              <button *ngIf="o.estado === 'ENTREGADO' && !o.vendido" class="btn small" (click)="$event.stopPropagation(); onSell(o)">Vender</button>
+              <button *ngIf="o.vendido" class="btn small" (click)="$event.stopPropagation(); onTicket(o)" [disabled]="!o.ventaId">Ver ticket</button>
             </td>
           </tr>
           <tr *ngIf="expanded().has(o.id)" class="details">

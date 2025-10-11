@@ -1,0 +1,53 @@
+<section class="wrapper">
+  <header class="header">
+    <h1>Registrar venta</h1>
+  </header>
+
+  <div class="loading" *ngIf="loading()">
+    <div class="spinner" aria-label="Cargando"></div>
+    <span>Cargando pedido...</span>
+  </div>
+
+  <ng-container *ngIf="!loading() && pedido() as p">
+    <div class="panel">
+      <div class="subtitle">Pedido {{ p.id }}</div>
+      <ul>
+        <li *ngFor="let it of p.items">- {{ it.cantidad }} × {{ it.nombre }} &#64; Q {{ it.precioUnitario?.toFixed(2) }}</li>
+      </ul>
+      <div class="totals">
+        <div>Subtotal: <strong>Q {{ subtotal() | number:'1.2-2' }}</strong></div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+      <div class="grid">
+        <label>
+          <span>Descuento (Q)</span>
+          <input type="number" step="0.01" min="0" formControlName="descuento" />
+        </label>
+        <label>
+          <span>Propina (Q)</span>
+          <input type="number" step="0.01" min="0" formControlName="propina" />
+        </label>
+        <label>
+          <span>Método de pago</span>
+          <select formControlName="metodoPagoId" required>
+            <option [ngValue]="null" disabled>Selecciona un método</option>
+            <option *ngFor="let m of methods()" [ngValue]="m.id">{{ m.nombre }}</option>
+          </select>
+        </label>
+        <label>
+          <span>Monto (Q)</span>
+          <input type="number" step="0.01" min="0" formControlName="monto" />
+        </label>
+      </div>
+      <div class="totals grand">
+        <div>Total: <strong>Q {{ total() | number:'1.2-2' }}</strong></div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" routerLink="/pedidos2">Cancelar</button>
+        <button type="submit" class="btn primary" [disabled]="submitting()">Confirmar venta</button>
+      </div>
+    </form>
+  </ng-container>
+</section>

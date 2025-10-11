@@ -63,7 +63,10 @@
             <td data-label="Hora">{{ o.creado_en | date:'shortTime' }}</td>
             <td data-label="Mesa">{{ o.mesaNumero == null ? 'Para llevar' : ('Mesa ' + o.mesaNumero) }}</td>
             <td data-label="Cliente">{{ o.cliente }}</td>
-            <td data-label="Estado"><span class="badge">{{ o.estado }}</span></td>
+            <td data-label="Estado">
+              <span class="badge">{{ o.estado }}</span>
+              <span *ngIf="o.vendido" class="chip-sold">Vendido</span>
+            </td>
             <td class="row-actions" data-label="Acciones">
               <button class="btn small" (click)="$event.stopPropagation(); avanzar(o)" [disabled]="progressingId() === o.id || o.estado === 'ENTREGADO'">Avanzar</button>
             </td>

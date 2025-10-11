@@ -67,7 +67,9 @@ export class OrderService {
           cliente: r.cliente ?? r.clienteNombre ?? r.nombreCliente ?? r.cliente_nombre ?? '—',
           estado: (r.estado ?? 'RECIBIDO') as any,
           items: this.mapDetalles(r),
-          notas: r.notas ?? r.observaciones ?? r.nota ?? ''
+          notas: r.notas ?? r.observaciones ?? r.nota ?? '',
+          vendido: r.vendido === true,
+          ventaId: r.ventaId ?? r.idVenta ?? r.venta?.id
         });
 
         let mapped = list.map(toPedido);
@@ -97,7 +99,9 @@ export class OrderService {
     return arr.map((it: any) => ({
       cantidad: it.cantidad ?? it.qty ?? 1,
       nombre: it.nombre ?? it.nombreProducto ?? it.productoNombre ?? it.producto ?? it.descripcion ?? 'Producto',
-      nota: it.nota ?? it.observacion ?? it.observaciones ?? it.notas ?? ''
+      nota: it.nota ?? it.observacion ?? it.observaciones ?? it.notas ?? '',
+      productoId: it.productoId ?? it.idProducto ?? it.id,
+      precioUnitario: Number(it.precioUnitario ?? it.precio ?? it.unitPrice ?? 0)
     }));
   }
 
@@ -111,7 +115,9 @@ export class OrderService {
         cliente: r.cliente ?? r.clienteNombre ?? r.nombreCliente ?? r.cliente_nombre ?? '—',
         estado: (r.estado ?? 'RECIBIDO') as any,
         items: this.mapDetalles(r),
-        notas: r.notas ?? r.observaciones ?? r.nota ?? ''
+        notas: r.notas ?? r.observaciones ?? r.nota ?? '',
+        vendido: r.vendido === true,
+        ventaId: r.ventaId ?? r.idVenta ?? r.venta?.id
       }))
     );
   }

@@ -4,6 +4,8 @@ export interface PedidoItem {
   cantidad: number;
   nombre: string;
   nota?: string;
+  productoId?: number;
+  precioUnitario?: number;
 }
 
 export interface Pedido {
@@ -15,5 +17,6 @@ export interface Pedido {
   estado: PedidoEstado;
   items: PedidoItem[];
   notas?: string;
+  vendido?: boolean;
+  ventaId?: number;
 }
-
