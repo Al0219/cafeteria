@@ -1,0 +1,66 @@
+<section class="wrapper">
+  <nav class="hotbar" aria-label="Módulos">
+    <a class="chip" routerLink="/pedir">PEDIR</a>
+    <a class="chip" routerLink="/pedidos">PEDIDOS</a>
+    <a class="chip" routerLink="/menu">MENÚ</a>
+    <a class="chip" routerLink="/cocina">COCINA</a>
+    <a class="chip active" routerLink="/usuarios">USUARIOS</a>
+    <a class="chip logout" href="#">CERRAR SESIÓN</a>
+  </nav>
+
+  <header class="header">
+    <h1>Editar usuario</h1>
+  </header>
+
+  <div class="loading" *ngIf="loading()">
+    <div class="spinner" aria-label="Cargando"></div>
+    <span>Cargando datos...</span>
+  </div>
+
+  <p class="empty" *ngIf="!loading() && errorMsg()">{{ errorMsg() }}</p>
+
+  <form class="form" [formGroup]="form" (ngSubmit)="save()" *ngIf="!loading() && !errorMsg()">
+    <div class="grid">
+      <label>
+        <span>Nombre</span>
+        <input type="text" formControlName="nombre" required />
+      </label>
+      <label>
+        <span>Usuario</span>
+        <input type="text" formControlName="usuario" required />
+      </label>
+      <label>
+        <span>DPI</span>
+        <input type="text" formControlName="dpi" required />
+      </label>
+      <label>
+        <span>Email</span>
+        <input type="email" formControlName="email" />
+      </label>
+      <label>
+        <span>Teléfono</span>
+        <input type="text" formControlName="telefono" />
+      </label>
+      <label>
+        <span>Dirección</span>
+        <input type="text" formControlName="direccion" />
+      </label>
+      <label>
+        <span>Rol</span>
+        <select formControlName="rolCodigo" required>
+          <option value="" disabled>Selecciona un rol</option>
+          <option *ngFor="let r of roles()" [value]="r.codigo">{{ r.nombre }}</option>
+        </select>
+      </label>
+      <label>
+        <span>Contraseña (dejar vacío para no cambiar)</span>
+        <input type="password" formControlName="contrasenia" />
+      </label>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" (click)="back()">Cancelar</button>
+      <button type="submit" class="btn primary" [disabled]="saving()">Guardar cambios</button>
+    </div>
+  </form>
+</section>
+

@@ -43,6 +43,11 @@ public class UsuarioController {
         return usuarioService.listarUsuarios();
     }
 
+    @GetMapping("/{id}")
+    public UsuarioResponse obtener(@PathVariable Integer id) {
+        return usuarioService.obtenerUsuario(id);
+    }
+
     @PutMapping("/{id}")
     public UsuarioResponse actualizar(@PathVariable Integer id,
                                        @Valid @RequestBody UsuarioUpdateRequest request) {

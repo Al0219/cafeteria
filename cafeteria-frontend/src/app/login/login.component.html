@@ -1,0 +1,40 @@
+﻿<section class="login" role="main">
+  <div class="login__overlay">
+    <header class="login__header">
+      <h1 class="login__brand"><span>Yumil</span><span class="brand-secondary">Kool</span></h1>
+      <p class="login__subtitle">Iniciar sesión</p>
+    </header>
+
+    <form class="login__form" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      <label class="input-label" for="username">Usuario</label>
+      <input
+        id="username"
+        type="text"
+        formControlName="username"
+        autocomplete="username"
+        [class.is-invalid]="loginForm.controls.username.invalid && loginForm.controls.username.touched"
+        placeholder="Usuario" />
+      <span class="input-error" *ngIf="loginForm.controls.username.invalid && loginForm.controls.username.touched">
+        Ingresa tu usuario
+      </span>
+
+      <label class="input-label" for="password">Contraseña</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        [class.is-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+        placeholder="Contraseña" />
+      <span class="input-error" *ngIf="loginForm.controls.password.invalid && loginForm.controls.password.touched">
+        Ingresa tu contraseña
+      </span>
+
+      <button type="submit" class="login__submit" [disabled]="isDisabled()">
+        {{ isSubmitting() ? 'Ingresando…' : 'Ingresar' }}
+      </button>
+    </form>
+
+    <a class="login__link" routerLink="/forgot-password">Olvidé mi contraseña</a>
+  </div>
+</section>

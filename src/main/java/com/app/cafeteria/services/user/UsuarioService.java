@@ -12,6 +12,8 @@ public interface UsuarioService {
 
     List<UsuarioResponse> listarUsuarios();
 
+    UsuarioResponse obtenerUsuario(Integer id);
+
     UsuarioResponse editarUsuario(Integer id, UsuarioUpdateRequest request);
 
     void eliminarUsuario(Integer id);

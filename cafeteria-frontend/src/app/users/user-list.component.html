@@ -1,0 +1,197 @@
+<section class="wrapper">
+  <nav class="hotbar" #hotbar aria-label="Módulos">
+    <a class="chip" href="#">PEDIR</a>
+    <a class="chip" href="#">PEDIDOS</a>
+    <a class="chip" href="#">MENÚ</a>
+    <a class="chip" href="#">COCINA</a>
+    <a class="chip active" href="#">USUARIOS</a>
+    <a class="chip logout" #logoutChip href="#">CERRAR SESIÓN</a>
+  </nav>
+
+  <header class="header">
+    <h1>Control de Usuarios</h1>
+    <div class="actions">
+      <button class="btn primary" (click)="onCreate()">+ Crear usuario</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="search"
+      placeholder="Buscar por nombre o DPI..."
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+      class="search"
+      aria-label="Buscar por nombre"
+    />
+    <div class="role-filter">
+      <label class="sr-only" for="roleSelect">Rol</label>
+      <select id="roleSelect" [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event)">
+        <option value="">Todos los roles</option>
+        <option *ngFor="let r of roles()" [value]="r.codigo">{{ r.nombre }}</option>
+      </select>
+    </div>
+    <div class="state-filter">
+      <label class="sr-only" for="stateSelect">Estado</label>
+      <select id="stateSelect" [ngModel]="estadoFilter()" (ngModelChange)="estadoFilter.set($event)">
+        <option value="">Todos los estados</option>
+        <option *ngFor="let e of estados()" [value]="e">{{ e }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading()">
+    <div class="spinner" aria-label="Cargando"></div>
+    <span>Cargando usuarios...</span>
+  </div>
+
+  <p class="empty" *ngIf="!loading() && errorMsg()">{{ errorMsg() }}</p>
+
+  <div class="table-container" *ngIf="!loading() && filtered().length">
+    <table class="table" role="table">
+      <thead>
+        <tr>
+          <th>DPI</th>
+          <th>Nombre</th>
+          <th>Usuario</th>
+          <th>Contraseña</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of filtered()">
+          <td data-label="DPI">{{ u.dpi }}</td>
+          <td data-label="Nombre">{{ u.nombre }}</td>
+          <td data-label="Usuario">{{ u.usuario }}</td>
+          <td data-label="Contraseña" class="mono" title="Oculto por seguridad">***</td>
+          <td data-label="Rol">{{ u.rol }}</td>
+          <td data-label="Estado">
+            <span class="badge" [class.active]="u.activo !== false" [class.inactive]="u.activo === false">
+              {{ u.activo === false ? 'Inactivo' : 'Activo' }}
+            </span>
+          </td>
+          <td class="row-actions" data-label="Acciones">
+            <button class="icon" title="Editar" (click)="onEdit(u)">✏️</button>
+            <ng-container *ngIf="u.activo !== false; else activarTpl">
+              <button class="icon danger" title="Desactivar" (click)="onDelete(u)" [disabled]="deletingId() === u.id" aria-busy="{{ deletingId() === u.id }}">✖</button>
+            </ng-container>
+            <ng-template #activarTpl>
+              <button class="icon success" title="Activar" (click)="onActivate(u)" [disabled]="activatingId() === u.id" aria-busy="{{ activatingId() === u.id }}">✔</button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="empty" *ngIf="!loading() && !filtered().length && !errorMsg()">No hay usuarios para mostrar.</p>
+
+  <!-- Modal de creación -->
+  <div class="modal" *ngIf="creating()" aria-modal="true" role="dialog">
+    <div class="modal__panel">
+      <header class="modal__header">
+        <h2>Crear usuario</h2>
+        <button type="button" class="modal__close" aria-label="Cerrar" (click)="cancelCreate()">×</button>
+      </header>
+      <form [formGroup]="createForm" (ngSubmit)="saveCreate()" class="form">
+        <div class="grid">
+          <label>
+            <span>Nombre</span>
+            <input type="text" formControlName="nombre" required />
+          </label>
+          <label>
+            <span>Usuario</span>
+            <input type="text" formControlName="usuario" required />
+          </label>
+          <label>
+            <span>DPI</span>
+            <input type="text" formControlName="dpi" required />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" formControlName="email" />
+          </label>
+          <label>
+            <span>Teléfono</span>
+            <input type="text" formControlName="telefono" />
+          </label>
+          <label>
+            <span>Dirección</span>
+            <input type="text" formControlName="direccion" />
+          </label>
+          <label>
+            <span>Rol</span>
+            <select formControlName="rolCodigo" required>
+              <option value="" disabled>Selecciona un rol</option>
+              <option *ngFor="let r of roles()" [value]="r.codigo">{{ r.nombre }}</option>
+              <option *ngIf="roles().length === 0" value="ADMIN">ADMIN</option>
+            </select>
+          </label>
+          <label>
+            <span>Contraseña</span>
+            <input type="password" formControlName="contrasenia" required />
+          </label>
+        </div>
+        <div class="modal__actions">
+          <button type="button" class="btn" (click)="cancelCreate()">Cancelar</button>
+          <button type="submit" class="btn primary" [disabled]="isSaving()">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de edición -->
+  <div class="modal" *ngIf="editing() as ed" aria-modal="true" role="dialog">
+    <div class="modal__panel">
+      <header class="modal__header">
+        <h2>Editar usuario</h2>
+        <button type="button" class="modal__close" aria-label="Cerrar" (click)="cancelEdit()">×</button>
+      </header>
+      <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="form">
+        <div class="grid">
+          <label>
+            <span>Nombre</span>
+            <input type="text" formControlName="nombre" required />
+          </label>
+          <label>
+            <span>Usuario</span>
+            <input type="text" formControlName="usuario" required />
+          </label>
+          <label>
+            <span>DPI</span>
+            <input type="text" formControlName="dpi" required />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" formControlName="email" />
+          </label>
+          <label>
+            <span>Teléfono</span>
+            <input type="text" formControlName="telefono" />
+          </label>
+          <label>
+            <span>Dirección</span>
+            <input type="text" formControlName="direccion" />
+          </label>
+          <label>
+            <span>Rol</span>
+            <select formControlName="rolCodigo" required>
+              <option value="" disabled>Selecciona un rol</option>
+              <option *ngFor="let r of roles()" [value]="r.codigo">{{ r.nombre }}</option>
+            </select>
+          </label>
+          <label>
+            <span>Contraseña (dejar vacío para no cambiar)</span>
+            <input type="password" formControlName="contrasenia" />
+          </label>
+        </div>
+        <div class="modal__actions">
+          <button type="button" class="btn" (click)="cancelEdit()">Cancelar</button>
+          <button type="submit" class="btn primary" [disabled]="isUpdating()">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
