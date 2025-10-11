@@ -1,0 +1,179 @@
+<section class="wrapper">
+  <nav class="hotbar" aria-label="Módulos">
+    <a class="chip" routerLink="/pedir">PEDIR</a>
+    <a class="chip" routerLink="/pedidos">PEDIDOS</a>
+    <a class="chip active" routerLink="/menu">MENÚ</a>
+    <a class="chip" routerLink="/cocina">COCINA</a>
+    <a class="chip" routerLink="/usuarios">USUARIOS</a>
+    <a class="chip logout" href="#">CERRAR SESIÓN</a>
+  </nav>
+
+  <header class="header">
+    <h1>Control del menú</h1>
+    <div class="actions">
+      <button class="btn primary" (click)="onCreate()">+ Crear producto</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="search"
+      placeholder="Buscar por nombre o descripción..."
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+      class="search"
+      aria-label="Buscar por nombre"
+    />
+    <div class="role-filter">
+      <label class="sr-only" for="catSelect">Categoría</label>
+      <select id="catSelect" [ngModel]="categoriaFilter()" (ngModelChange)="categoriaFilter.set($event)">
+        <option value="">Todas las categorías</option>
+        <option *ngFor="let c of categorias()" [value]="c">{{ c }}</option>
+      </select>
+    </div>
+    <div class="state-filter">
+      <label class="sr-only" for="stateSelect">Estado</label>
+      <select id="stateSelect" [ngModel]="estadoFilter()" (ngModelChange)="estadoFilter.set($event)">
+        <option value="">Todos los estados</option>
+        <option *ngFor="let e of estados()" [value]="e">{{ e }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading()">
+    <div class="spinner" aria-label="Cargando"></div>
+    <span>Cargando productos...</span>
+  </div>
+
+  <div class="table-container" *ngIf="!loading() && filtered().length">
+    <table class="table" role="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th class="sortable" (click)="toggleSortStock()" [attr.aria-sort]="sortStock() === 'asc' ? 'ascending' : 'descending'">
+            Stock
+            <span class="sort-indicator">{{ sortStock() === 'asc' ? '▲' : '▼' }}</span>
+          </th>
+          <th>Descripción</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of filtered()">
+          <td data-label="Nombre">{{ p.nombre }}</td>
+          <td data-label="Categoría">{{ p.categoria }}</td>
+          <td data-label="Precio">Q {{ p.precio | number:'1.2-2' }}</td>
+          <td data-label="Stock">{{ p.stock }}</td>
+          <td data-label="Descripción">{{ p.descripcion || '-' }}</td>
+          <td data-label="Estado">
+            <span class="badge" [class.active]="p.estado === 'Activo'" [class.inactive]="p.estado !== 'Activo'">{{ p.estado }}</span>
+          </td>
+          <td class="row-actions" data-label="Acciones">
+            <button class="icon" title="Editar" (click)="onEdit(p)">✏️</button>
+            <ng-container *ngIf="p.estado === 'Activo'; else activarTpl">
+              <button class="icon danger" title="Desactivar" (click)="onDelete(p)" [disabled]="deletingId() === p.id" aria-busy="{{ deletingId() === p.id }}">✖</button>
+            </ng-container>
+            <ng-template #activarTpl>
+              <button class="icon success" title="Activar" (click)="onActivate(p)" [disabled]="activatingId() === p.id" aria-busy="{{ activatingId() === p.id }}">✔</button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="empty" *ngIf="!loading() && !filtered().length">No hay productos para mostrar.</p>
+
+  <!-- Modal crear producto -->
+  <div class="modal" *ngIf="creating()" aria-modal="true" role="dialog">
+    <div class="modal__panel">
+      <header class="modal__header">
+        <h2>Crear producto</h2>
+        <button type="button" class="modal__close" aria-label="Cerrar" (click)="cancelCreate()">×</button>
+      </header>
+      <form [formGroup]="createForm" (ngSubmit)="saveCreate()" class="form">
+        <div class="grid">
+          <label>
+            <span>Nombre</span>
+            <input type="text" formControlName="nombre" required />
+          </label>
+          <label>
+            <span>Categoría</span>
+            <select formControlName="categoriaId" required>
+              <option [ngValue]="null" disabled>Selecciona una categoría</option>
+              <option *ngFor="let c of categoriasApi()" [ngValue]="c.id">{{ c.nombre }}</option>
+            </select>
+          </label>
+          <label>
+            <span>Precio</span>
+            <input type="number" step="0.01" min="0" formControlName="precio" required />
+          </label>
+          <label>
+            <span>Stock</span>
+            <input type="number" min="0" formControlName="stock" required />
+          </label>
+          <label>
+            <span>Imagen URL</span>
+            <input type="url" formControlName="imagenUrl" />
+          </label>
+          <label>
+            <span>Descripción</span>
+            <input type="text" formControlName="descripcion" />
+          </label>
+        </div>
+        <div class="modal__actions">
+          <button type="button" class="btn" (click)="cancelCreate()">Cancelar</button>
+          <button type="submit" class="btn primary" [disabled]="isSaving()">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal editar producto -->
+  <div class="modal" *ngIf="editing() as ed" aria-modal="true" role="dialog">
+    <div class="modal__panel">
+      <header class="modal__header">
+        <h2>Editar producto</h2>
+        <button type="button" class="modal__close" aria-label="Cerrar" (click)="cancelEdit()">×</button>
+      </header>
+      <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="form">
+        <div class="grid">
+          <label>
+            <span>Nombre</span>
+            <input type="text" formControlName="nombre" required />
+          </label>
+          <label>
+            <span>Categoría</span>
+            <select formControlName="categoriaId" required>
+              <option [ngValue]="null" disabled>Selecciona una categoría</option>
+              <option *ngFor="let c of categoriasApi()" [ngValue]="c.id">{{ c.nombre }}</option>
+            </select>
+          </label>
+          <label>
+            <span>Precio</span>
+            <input type="number" step="0.01" min="0" formControlName="precio" required />
+          </label>
+          <label>
+            <span>Stock</span>
+            <input type="number" min="0" formControlName="stock" required />
+          </label>
+          <label>
+            <span>Imagen URL</span>
+            <input type="url" formControlName="imagenUrl" />
+          </label>
+          <label>
+            <span>Descripción</span>
+            <input type="text" formControlName="descripcion" />
+          </label>
+        </div>
+        <div class="modal__actions">
+          <button type="button" class="btn" (click)="cancelEdit()">Cancelar</button>
+          <button type="submit" class="btn primary" [disabled]="isUpdating()">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
