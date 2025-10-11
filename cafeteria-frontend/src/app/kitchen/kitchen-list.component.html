@@ -1,0 +1,91 @@
+<section class="wrapper">
+  <nav class="hotbar" aria-label="Módulos">
+    <a class="chip" routerLink="/pedir">PEDIR</a>
+    <a class="chip" routerLink="/pedidos">PEDIDOS</a>
+    <a class="chip" routerLink="/menu">MENÚ</a>
+    <a class="chip active" routerLink="/cocina">COCINA</a>
+    <a class="chip" routerLink="/usuarios">USUARIOS</a>
+    <a class="chip logout" href="#">CERRAR SESIÓN</a>
+  </nav>
+
+  <header class="header">
+    <h1>CONTROL DE PEDIDOS EN COCINA</h1>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="search"
+      placeholder="Buscar por No. pedido, mesa o cliente..."
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+      class="search"
+      aria-label="Buscar"
+    />
+    <div class="role-filter">
+      <label class="sr-only" for="mesaSelect">Mesa</label>
+      <select id="mesaSelect" [ngModel]="mesaFilter()" (ngModelChange)="mesaFilter.set($event)">
+        <option value="">Todas las mesas</option>
+        <option *ngFor="let m of mesas()" [value]="m">{{ m }}</option>
+      </select>
+    </div>
+    <div class="state-filter">
+      <label class="sr-only" for="estadoSelect">Estado</label>
+      <select id="estadoSelect" [ngModel]="estadoFilter()" (ngModelChange)="onEstadoChange($event)">
+        <option value="">Todos los estados</option>
+        <option *ngFor="let e of estados()" [value]="e">{{ e }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading()">
+    <div class="spinner" aria-label="Cargando"></div>
+    <span>Cargando pedidos...</span>
+  </div>
+
+  <div class="table-container" *ngIf="!loading() && filtered().length">
+    <table class="table" role="table">
+      <thead>
+        <tr>
+          <th>No. Pedido</th>
+          <th class="sortable" (click)="toggleSort()" [attr.aria-sort]="sortDir() === 'asc' ? 'ascending' : 'descending'">
+            Hora <span class="sort-indicator">{{ sortDir() === 'asc' ? '▲' : '▼' }}</span>
+          </th>
+          <th>Mesa</th>
+          <th>Cliente</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let o of filtered()">
+          <tr (click)="toggleRow(o.id)" class="row-click">
+            <td data-label="No. Pedido">{{ o.id }}</td>
+            <td data-label="Hora">{{ o.creado_en | date:'shortTime' }}</td>
+            <td data-label="Mesa">{{ o.mesaNumero == null ? 'Para llevar' : ('Mesa ' + o.mesaNumero) }}</td>
+            <td data-label="Cliente">{{ o.cliente }}</td>
+            <td data-label="Estado"><span class="badge">{{ o.estado }}</span></td>
+            <td class="row-actions" data-label="Acciones">
+              <button class="btn small" (click)="$event.stopPropagation(); avanzar(o)" [disabled]="progressingId() === o.id || o.estado === 'ENTREGADO'">Avanzar</button>
+            </td>
+          </tr>
+          <tr *ngIf="expanded().has(o.id)" class="details">
+            <td colspan="6">
+              <div class="details__content">
+                <div class="subtitle">Productos:</div>
+                <ul>
+                  <li *ngFor="let it of o.items">
+                    - {{ it.cantidad }} × {{ it.nombre }}<span *ngIf="it.nota"> ({{ it.nota }})</span>
+                  </li>
+                </ul>
+                <div *ngIf="o.notas" class="subtitle">Notas:</div>
+                <div *ngIf="o.notas">{{ o.notas }}</div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="empty" *ngIf="!loading() && !filtered().length">No hay pedidos para mostrar.</p>
+</section>
