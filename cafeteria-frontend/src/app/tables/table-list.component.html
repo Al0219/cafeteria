@@ -27,10 +27,11 @@
     <div class="tables-container">
         <button *ngFor="let mesa of filteredMesas" class="table" 
                 [id]="mesa.nombre.replace(' ', '').toLowerCase()" 
-                [attr.data-state]="mesa.activo ? 'libre' : 'ocupada'" 
-                [ngClass]="mesa.activo ? 'libre' : 'ocupada'"
+                [attr.data-state]="mesa.estado" 
+                [ngClass]="mesa.estado"
                 [style.top.%]="mesa.topPosition"
-                [style.left.%]="mesa.leftPosition">
+                [style.left.%]="mesa.leftPosition"
+                (click)="onTableClick(mesa)">
             {{ mesa.nombre }}
         </button>
     </div>

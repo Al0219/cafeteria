@@ -6,5 +6,6 @@ export interface Mesa {
   activo?: boolean;
   topPosition?: number; // Percentage for CSS top property
   leftPosition?: number; // Percentage for CSS left property
+  estado?: 'libre' | 'reservada' | 'ocupada'; // New property for table state
 }
 
