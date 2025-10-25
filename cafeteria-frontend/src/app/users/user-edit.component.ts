@@ -1,7 +1,9 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 import { UserService } from './user.service';
 import { RoleService } from './role.service';
 import { Role } from './role.model';
@@ -10,7 +12,7 @@ import { User } from './user.model';
 @Component({
   selector: 'app-user-edit',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss']
 })
@@ -37,7 +39,8 @@ export class UserEditComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly userService: UserService,
-    private readonly roleService: RoleService
+    private readonly roleService: RoleService,
+    public readonly auth: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -74,6 +77,12 @@ export class UserEditComponent implements OnInit {
 
   back(): void { this.router.navigate(['/usuarios']); }
 
+  onLogout(ev: Event): void {
+    ev.preventDefault();
+    this.auth.logout();
+    this.router.navigate(['/']);
+  }
+
   save(): void {
     if (!this.user() || this.form.invalid) {
       this.form.markAllAsTouched();
@@ -104,4 +113,3 @@ export class UserEditComponent implements OnInit {
     });
   }
 }
-

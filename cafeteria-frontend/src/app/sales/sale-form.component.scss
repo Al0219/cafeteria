@@ -2,12 +2,14 @@
 .header h1 { font-size: 1.6rem; font-weight: 700; color: #000; }
 .panel { background: #fff; border-radius: .75rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 1rem; margin-bottom: 1rem; }
 .subtitle { font-weight: 700; margin-bottom: .5rem; }
+.panel ul { margin: .25rem 0; padding-left: 1rem; }
+.panel ul li { color: #000; }
 .form { background: #fff; border-radius: .75rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 1rem; }
 .grid { display: grid; gap: .75rem; grid-template-columns: repeat(2, 1fr); }
 .grid label { display: grid; gap: .35rem; }
 .grid label span { font-weight: 700; color: #000; }
 .grid input, .grid select { padding: .6rem .8rem; border-radius: .5rem; border: 1px solid #ddd; background: #fff; color: #222; font-weight: 400; }
-.totals { margin-top: .5rem; }
+.totals { margin-top: .5rem; color: #000; }
 .totals.grand { font-size: 1.1rem; }
 .actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .75rem; }
 .btn { border: 1px solid transparent; padding: .6rem 1rem; border-radius: .5rem; background: #fff; color: #000; cursor: pointer; }
@@ -16,4 +18,3 @@
 .spinner { width: 18px; height: 18px; border: 3px solid #eee; border-top-color: #b68c76; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg) } }
 @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
-

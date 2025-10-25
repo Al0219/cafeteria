@@ -1,16 +1,18 @@
 import { Component, OnInit, signal, computed, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { UserService } from './user.service';
 import { RoleService } from './role.service';
 import { Role } from './role.model';
 import { User } from './user.model';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.scss']
 })
@@ -80,7 +82,8 @@ export class UserListComponent implements OnInit, AfterViewInit {
     private readonly userService: UserService,
     private readonly roleService: RoleService,
     private readonly fb: FormBuilder,
-    private readonly router: Router
+    private readonly router: Router,
+    public readonly auth: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -157,6 +160,12 @@ export class UserListComponent implements OnInit, AfterViewInit {
         alert('No se pudo desactivar el usuario');
       }
     });
+  }
+
+  onLogout(ev: Event): void {
+    ev.preventDefault();
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 
   onActivate(user: User): void {

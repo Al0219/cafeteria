@@ -1,0 +1,72 @@
+<section class="wrapper">
+  <nav class="hotbar" aria-label="Modulos">
+    <a class="chip" routerLink="/mesas" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">MESAS</a>
+    <a class="chip" routerLink="/pedidos" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">PEDIDOS</a>
+    <a class="chip" routerLink="/pedidos2" *ngIf="auth.hasAny(['CAJERO','ADMIN','GERENTE'])">CAJA</a>
+    <a class="chip" routerLink="/menu" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">MENUS</a>
+    <a class="chip" routerLink="/cocina" *ngIf="auth.hasAny(['COCINA','ADMIN','GERENTE'])">COCINA</a>
+    <a class="chip" routerLink="/usuarios" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">USUARIOS</a>
+    <a class="chip logout" href="#" (click)="onLogout($event)">CERRAR SESION</a>
+  </nav>
+
+  <header class="header">
+    <h1>MESAS:</h1>
+    <div class="actions">
+      <button class="btn" (click)="goCarry()">Para llevar</button>
+      <button class="btn primary" (click)="toggleEdit()">{{ editing() ? 'Salir edición' : 'Editar' }}</button>
+    </div>
+  </header>
+
+  <div class="filter">
+    <div class="title">Filtrar</div>
+    <div class="row">
+      <select [ngModel]="categoria()" (ngModelChange)="categoria.set($event)">
+        <option value="">Categoría</option>
+        <option>Barra</option>
+        <option>Mesa</option>
+      </select>
+      <input type="search" placeholder="Nombre de la mesa" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+    </div>
+  </div>
+
+  <div class="floor">
+    <div class="zone left" #leftZone (dragover)="$event.preventDefault()" (drop)="onDrop('left', $event)">
+      <div class="divider" aria-hidden="true"></div>
+      <ng-container *ngFor="let m of mesas()">
+        <ng-container *ngIf="m.side === 'left'">
+          <a *ngIf="!editing()" class="box link" [class.bar]="m.nombre.startsWith('BARRA')" [style.top.%]="m.top" [style.left.%]="m.left"
+             [routerLink]="['/pedir']" [queryParams]="{ mesaId: m.id }">
+             {{ m.nombre }}
+             <span class="state" [class.occ]="occupiedMap()[m.id]" [class.free]="!occupiedMap()[m.id]">{{ occupiedMap()[m.id] ? 'Ocupada' : 'Libre' }}</span>
+          </a>
+          <div *ngIf="editing()" class="box" [class.bar]="m.nombre.startsWith('BARRA')" [style.top.%]="m.top" [style.left.%]="m.left"
+               draggable="true" (dragstart)="onDragStart(m, $event)">
+               {{ m.nombre }}
+               <span class="state" [class.occ]="occupiedMap()[m.id]" [class.free]="!occupiedMap()[m.id]">{{ occupiedMap()[m.id] ? 'Ocupada' : 'Libre' }}</span>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+    <div class="zone right" #rightZone (dragover)="$event.preventDefault()" (drop)="onDrop('right', $event)">
+      <div class="divider" aria-hidden="true"></div>
+      <ng-container *ngFor="let m of mesas()">
+        <ng-container *ngIf="m.side === 'right'">
+          <a *ngIf="!editing()" class="box link" [class.bar]="m.nombre.startsWith('BARRA')" [style.top.%]="m.top" [style.left.%]="m.left"
+             [routerLink]="['/pedir']" [queryParams]="{ mesaId: m.id }">
+             {{ m.nombre }}
+             <span class="state" [class.occ]="occupiedMap()[m.id]" [class.free]="!occupiedMap()[m.id]">{{ occupiedMap()[m.id] ? 'Ocupada' : 'Libre' }}</span>
+          </a>
+          <div *ngIf="editing()" class="box" [class.bar]="m.nombre.startsWith('BARRA')" [style.top.%]="m.top" [style.left.%]="m.left"
+               draggable="true" (dragstart)="onDragStart(m, $event)">
+               {{ m.nombre }}
+               <span class="state" [class.occ]="occupiedMap()[m.id]" [class.free]="!occupiedMap()[m.id]">{{ occupiedMap()[m.id] ? 'Ocupada' : 'Libre' }}</span>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</section>
+
+
+
+

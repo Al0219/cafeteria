@@ -1,0 +1,101 @@
+<section class="wrapper">
+  <nav class="hotbar" aria-label="Modulos">
+    <a class="chip" routerLink="/mesas" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">MESAS</a>
+    <a class="chip" routerLink="/pedidos" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">PEDIDOS</a>
+    <a class="chip" routerLink="/pedidos2" *ngIf="auth.hasAny(['CAJERO','ADMIN','GERENTE'])">CAJA</a>
+    <a class="chip" routerLink="/menu" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">MENUS</a>
+    <a class="chip" routerLink="/cocina" *ngIf="auth.hasAny(['COCINA','ADMIN','GERENTE'])">COCINA</a>
+    <a class="chip" routerLink="/usuarios" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">USUARIOS</a>
+    <a class="chip logout" href="#" (click)="onLogout($event)">CERRAR SESION</a>
+  </nav>
+
+  <header class="header">
+    <h1>PEDIDOS:</h1>
+  </header>
+
+  <div class="layout">
+    <!-- Left: products -->
+    <div class="left">
+      <div class="toolbar">
+        <select [ngModel]="category()" (ngModelChange)="category.set($event)">
+          <option value="">Categoria</option>
+          <option *ngFor="let c of categories()" [value]="c">{{ c }}</option>
+        </select>
+        <input type="search" placeholder="Nombre/Descripcion..." [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      </div>
+
+      <div class="grid" *ngIf="!loading(); else loadingTpl">
+        <article class="card" *ngFor="let p of filtered()">
+          <img [src]="p['imagenUrl'] || 'https://via.placeholder.com/320x180?text=Producto'" alt="{{ p.nombre }}" />
+          <div class="info">
+            <h3>{{ p.nombre }}</h3>
+            <p class="desc">{{ p.descripcion || ' ' }}</p>
+            <div class="price">Q {{ p.precio | number:'1.2-2' }}</div>
+          </div>
+          <div class="card-actions">
+            <button class="btn add" (click)="addToCart(p)">Agregar</button>
+          </div>
+        </article>
+      </div>
+      <ng-template #loadingTpl>
+        <div class="loading"><div class="spinner"></div> Cargando productos...</div>
+      </ng-template>
+    </div>
+
+    <!-- Right: cart -->
+    <aside class="right">
+      <h2>Menu Carrito</h2>
+      <div class="customer">
+        <label>
+          Cliente
+          <input type="text" [ngModel]="clienteNombre()" (ngModelChange)="clienteNombre.set($event)" placeholder="Nombre del cliente" />
+        </label>
+        <label>
+          Notas del pedido
+          <textarea rows="3" [ngModel]="notas()" (ngModelChange)="notas.set($event)" placeholder="Notas u observaciones generales"></textarea>
+        </label>
+      </div>
+      <div class="cart-list" *ngIf="cart().size; else emptyCart">
+        <div class="cart-row" *ngFor="let line of cart() | keyvalue">
+          <img [src]="line.value.imagenUrl || 'https://via.placeholder.com/56'" alt="{{ line.value.nombre }}" />
+          <div class="name">{{ line.value.nombre }}</div>
+          <div class="qty">
+            <button class="icon" (click)="dec(line.value)">-</button>
+            <input type="number" min="1" [ngModel]="line.value.cantidad" (ngModelChange)="onQtyChange(line.value, $event)" />
+            <button class="icon" (click)="inc(line.value)">+</button>
+          </div>
+          <div class="unit">Q {{ line.value.precio | number:'1.2-2' }}</div>
+          <button class="icon remove" title="Quitar" (click)="remove(line.value)">x</button>
+        </div>
+      </div>
+      <ng-template #emptyCart>
+        <div class="empty">El carrito esta vacio</div>
+      </ng-template>
+
+      <div class="total">
+        <span>Total</span>
+        <strong>Q {{ subtotal() | number:'1.2-2' }}</strong>
+      </div>
+
+      <div class="actions">
+        <button class="btn danger" (click)="clear()">Limpiar carrito</button>
+        <button class="btn primary" (click)="finalize()" [disabled]="cart().size === 0">Finalizar</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Modal de confirmacion: crear otro pedido en mesa ocupada -->
+  <div class="modal" *ngIf="showConfirm()">
+    <div class="modal__panel">
+      <h3>Crear otro pedido en esta mesa</h3>
+      <p>La mesa ya tiene un pedido en curso. Puedes crear otro si lo necesitas.</p>
+      <div class="modal__actions">
+        <button class="btn" (click)="cancelConflict()">Cancelar</button>
+        <button class="btn primary" (click)="confirmCreateAnother()">Crear otro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de exito -->
+  <div class="toast" *ngIf="showToast()" role="status">{{ toastMsg() }}</div>
+</section>

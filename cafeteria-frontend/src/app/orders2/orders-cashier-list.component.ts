@@ -1,7 +1,8 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 import { OrderService } from '../kitchen/order.service';
 import { Pedido } from '../kitchen/order.model';
@@ -19,7 +20,7 @@ import { SaleService } from '../sales/sale.service';
 export class OrdersCashierListComponent implements OnInit {
   readonly loading = signal(true);
   readonly search = signal('');
-  readonly estadoFilter = signal<string>('');
+  readonly estadoFilter = signal<string>('ENTREGADO');
   readonly mesaFilter = signal<string>('');
   readonly sortDir = signal<'asc' | 'desc'>('asc');
   readonly orders = signal<Pedido[]>([]);
@@ -55,6 +56,11 @@ export class OrdersCashierListComponent implements OnInit {
     });
     const dir = this.sortDir();
     return list.slice().sort((a, b) => {
+      // Primero: los no vendidos antes que los vendidos
+      const av = a.vendido ? 1 : 0;
+      const bv = b.vendido ? 1 : 0;
+      if (av !== bv) return av - bv;
+      // Segundo: ordenar por hora segun sortDir
       const ta = new Date(a.creado_en).getTime();
       const tb = new Date(b.creado_en).getTime();
       return dir === 'asc' ? ta - tb : tb - ta;
@@ -64,7 +70,9 @@ export class OrdersCashierListComponent implements OnInit {
   constructor(
     private readonly orderService: OrderService,
     private readonly mesaService: MesaService,
-    private readonly saleService: SaleService
+    private readonly saleService: SaleService,
+    public readonly auth: AuthService,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -107,13 +115,19 @@ export class OrdersCashierListComponent implements OnInit {
     this.saleService.getTicket(o.ventaId).subscribe({
       next: blob => {
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `ticket-${o.ventaId}.txt`; a.click(); URL.revokeObjectURL(url);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
       },
       error: err => {
         console.error('Error obteniendo ticket', err);
         alert('No se pudo descargar el ticket');
       }
     });
+  }
+
+  onLogout(ev: Event): void {
+    ev.preventDefault();
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 }

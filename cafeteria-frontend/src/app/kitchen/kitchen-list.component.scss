@@ -9,9 +9,9 @@
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 h1 { font-size: 1.8rem; font-weight: 700; color: #000; letter-spacing: .5px; }
 
-.hotbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; padding: .25rem 0 1rem 0; }
-.chip { display: flex; align-items: center; justify-content: center; background: #fff; color: #5b3e33; font-weight: 700; text-decoration: none; padding: .55rem 1rem; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06), 0 2px 4px rgba(0,0,0,.04); width: 100%; white-space: nowrap; }
-.chip.logout { background: #000; color: #fff; width: max-content; justify-self: end; }
+.hotbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; padding: .25rem 0 1rem 0; position: relative; padding-right: 10rem; }
+.chip { display: flex; align-items: center; justify-content: center; background: #fff; color: #5b3e33; font-weight: 700; text-decoration: none; padding: .55rem 1rem; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06), 0 2px 4px rgba(0,0,0,.04); width: 100%; white-space: nowrap; justify-self: start; }
+.chip.logout { background: #000; color: #fff; width: max-content; justify-self: end; position: absolute; right: 0; top: 0; }
 .chip.active { box-shadow: inset 0 0 0 2px var(--accent), 0 2px 4px rgba(0,0,0,.05) }
 
 .toolbar { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .75rem; margin-bottom: 1rem; }
@@ -43,6 +43,17 @@ tbody td { color: #000; }
 .loading { display: flex; align-items: center; gap: .75rem; color: var(--muted); }
 .spinner { width: 18px; height: 18px; border: 3px solid #eee; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg) } }
+
+/* Modal de confirmacion (coherente con otras pantallas) */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: grid; place-items: center; z-index: 1000; }
+.modal__panel { width: min(520px, 92vw); background: #fff; color: #000; border-radius: .75rem; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 1rem 1.25rem; }
+.modal__panel h3 { margin: 0 0 .5rem 0; font-size: 1.2rem; }
+.modal__panel p { margin: 0 0 .75rem 0; color: #444; }
+.modal__actions { display: flex; justify-content: flex-end; gap: .5rem; }
+.modal__actions .btn,
+.modal__actions .btn.small { padding: .6rem 1rem; font-size: .95rem; }
+.modal__actions .btn:not(.danger) { border: 0; outline: none; box-shadow: none; background: #fff; }
+.btn.small.danger { background: #0a8; color: #fff; }
 
 @media (max-width: 760px) {
   thead { display: none; }

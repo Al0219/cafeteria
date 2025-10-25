@@ -329,22 +329,6 @@ public class PedidoServiceImpl implements PedidoService {
         return mesa;
     }
 
-    @Override
-    @Transactional
-    public void eliminarPedido(Integer id) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
-        if (pedido.getEstado() != EstadoPedido.RECIBIDO) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se puede eliminar un pedido en estado RECIBIDO");
-        }
-        List<PedidoDetalle> detalles = pedidoDetalleRepository.findByPedidoId(pedido.getId());
-        // Restituir stock de productos
-        restituirStock(detalles);
-        // Eliminar detalles y luego el pedido
-        pedidoDetalleRepository.deleteAll(detalles);
-        pedidoRepository.delete(pedido);
-    }
-
     private PedidoResponse toResponse(Pedido pedido, List<PedidoDetalle> detalles) {
         List<PedidoDetalleResponse> detalleResponses = detalles.stream()
                 .map(detalle -> new PedidoDetalleResponse(
@@ -380,5 +364,6 @@ public class PedidoServiceImpl implements PedidoService {
         );
     }
 }
+
 
 

@@ -13,6 +13,7 @@ public record PedidoResponse(
         String mesaNombre,
         String clienteNombre,
         EstadoPedido estado,
+        Integer ventaId,
         Boolean vendido,
         String notas,
         OffsetDateTime creadoEn,

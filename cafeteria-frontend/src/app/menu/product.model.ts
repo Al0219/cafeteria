@@ -6,5 +6,6 @@ export interface Product {
   precio: number;
   stock: number;
   estado: 'Activo' | 'Inactivo';
+  imagenUrl?: string;
   descripcion?: string;
 }

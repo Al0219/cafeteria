@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { BackendUsuario, User } from './user.model';
+import { environment } from '../../environments/environment';
 
-const BASE = '/api/usuarios';
+const BASE = `${environment.apiBaseUrl}/usuarios`;
 
 @Injectable({ providedIn: 'root' })
 export class UserService {

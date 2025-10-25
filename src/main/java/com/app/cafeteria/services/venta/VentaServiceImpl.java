@@ -186,31 +186,72 @@ public class VentaServiceImpl implements VentaService {
         Pago pago = pagoRepository.findByVentaId(ventaId)
                 .orElse(null);
 
-        VentaResponse response = toResponse(venta, detalles, pago);
-        StringBuilder builder = new StringBuilder();
-        builder.append("Venta ").append(response.id()).append("\n");
-        builder.append("Fecha: ").append(response.fecha()).append("\n");
-        builder.append("Cajero: ").append(response.cajeroNombre()).append("\n");
-        builder.append("Subtotal: ").append(response.subtotal()).append("\n");
-        builder.append("Descuento: ").append(response.descuento()).append("\n");
-        builder.append("Propina: ").append(response.propina()).append("\n");
-        builder.append("Impuesto: ").append(response.impuesto()).append("\n");
-        builder.append("Total: ").append(response.total()).append("\n\n");
-        builder.append("Detalle:\n");
-        for (VentaDetalleResponse det : response.detalles()) {
-            builder.append(" - ")
-                    .append(det.nombreProducto())
-                    .append(" x")
-                    .append(det.cantidad())
-                    .append(" @")
-                    .append(det.precioUnitario())
-                    .append("\n");
-        }
-        if (response.pago() != null) {
-            builder.append("\nPago: ").append(response.pago().metodoPagoNombre())
-                    .append(" -> ").append(response.pago().monto());
-        }
-        return builder.toString().getBytes();
+        VentaResponse r = toResponse(venta, detalles, pago);
+        String html = "" +
+                "<!DOCTYPE html>" +
+                "<html lang=\"es\">" +
+                "<head>" +
+                "<meta charset=\"utf-8\"/>" +
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>" +
+                "<title>Ticket " + r.id() + "</title>" +
+                "<style>" +
+                "body{font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; padding:0; background:#fff;}" +
+                ".ticket{width:300px; margin:0 auto; padding:12px 10px; }" +
+                ".actions{ text-align:right; margin-bottom:8px; }" +
+                ".print{ background:#111; color:#fff; border:0; padding:6px 10px; border-radius:4px; cursor:pointer; }" +
+                ".print:active{ transform: translateY(1px); }" +
+                ".header{ text-align:center; }" +
+                ".header h1{ font-size:16px; margin:0 0 4px;}" +
+                ".header .sub{ font-size:12px; color:#555; }" +
+                ".line{ border-top:1px dashed #999; margin:8px 0; }" +
+                ".row{ display:flex; font-size:13px; }" +
+                ".row .label{ flex:1; color:#444;}" +
+                ".row .value{ text-align:right; min-width:80px;}" +
+                ".items{ width:100%; border-collapse:collapse; font-size:13px;}" +
+                ".items th, .items td{ padding:4px 0;}" +
+                ".items th{ text-align:left; border-bottom:1px solid #ddd; font-weight:600;}" +
+                ".totals .row{ font-weight:600;}" +
+                ".footer{ text-align:center; font-size:12px; color:#555; margin-top:10px;}" +
+                "@media print{ .ticket{ width:72mm; } .actions{ display:none; } }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class=\"ticket\">" +
+                "<div class=\"actions\"><button class=\"print\" onclick=\"window.print()\">Imprimir</button></div>" +
+                "<div class=\"header\">" +
+                "<h1>Cafetería</h1>" +
+                "<div class=\"sub\">Ticket #" + r.id() + "</div>" +
+                "</div>" +
+                "<div class=\"line\"></div>" +
+                "<div class=\"row\"><div class=\"label\">Fecha</div><div class=\"value\">" + r.fecha() + "</div></div>" +
+                "<div class=\"row\"><div class=\"label\">Cajero</div><div class=\"value\">" + (r.cajeroNombre() != null ? r.cajeroNombre() : "-") + "</div></div>" +
+                "<div class=\"line\"></div>" +
+                "<table class=\"items\">" +
+                "<thead><tr><th>Producto</th><th style=\"text-align:right\">Cant</th><th style=\"text-align:right\">Precio</th></tr></thead>" +
+                "<tbody>" +
+                r.detalles().stream().map(d ->
+                        "<tr>" +
+                        "<td>" + (d.nombreProducto() != null ? d.nombreProducto() : "") + "</td>" +
+                        "<td style=\\\"text-align:right\\\">" + d.cantidad() + "</td>" +
+                        "<td style=\\\"text-align:right\\\">Q " + d.precioUnitario() + "</td>" +
+                        "</tr>")
+                        .collect(Collectors.joining()) +
+                "</tbody></table>" +
+                "<div class=\"line\"></div>" +
+                "<div class=\"totals\">" +
+                "<div class=\"row\"><div class=\"label\">Subtotal</div><div class=\"value\">Q " + r.subtotal() + "</div></div>" +
+                "<div class=\"row\"><div class=\"label\">Descuento</div><div class=\"value\">- Q " + r.descuento() + "</div></div>" +
+                "<div class=\"row\"><div class=\"label\">Propina</div><div class=\"value\">Q " + r.propina() + "</div></div>" +
+                "<div class=\"row\"><div class=\"label\">Total</div><div class=\"value\">Q " + r.total() + "</div></div>" +
+                "</div>" +
+                (r.pago() != null ? "<div class=\\\"row\\\"><div class=\\\"label\\\">Pago (" + r.pago().metodoPagoNombre() + ")</div><div class=\\\"value\\\">Q " + r.pago().monto() + "</div></div>" : "") +
+                "<div class=\"row\"><div class=\"label\">Impuesto</div><div class=\"value\">Q " + r.impuesto() + "</div></div>" +
+                "<div class=\"line\"></div>" +
+                "<div class=\"footer\">Gracias por su compra</div>" +
+                "</div>" +
+                "</body></html>";
+
+        return html.getBytes();
     }
 
     private VentaResponse toResponse(Venta venta, List<VentaDetalle> detalles, Pago pago) {

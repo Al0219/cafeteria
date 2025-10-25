@@ -3,12 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { Pedido, PedidoEstado } from './order.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   constructor(private readonly http: HttpClient) {}
-  private readonly LIST_BASE = '/api/pedidos';
-  private readonly KITCHEN_BASE = '/api/pedidos/cocina';
+  private readonly LIST_BASE = `${environment.apiBaseUrl}/pedidos`;
+  private readonly KITCHEN_BASE = `${environment.apiBaseUrl}/pedidos/cocina`;
+  private readonly CREATE_BASE = `${environment.apiBaseUrl}/pedidos`;
   private data: Pedido[] = [
     {
       id: 10254,
@@ -63,7 +65,7 @@ export class OrderService {
           id: r.id ?? r.pedidoId ?? r.noPedido,
           creado_en: r.creado_en ?? r.creadoEn ?? r.creado ?? r.fecha ?? new Date().toISOString(),
           tipo: (r.tipo ?? r.tipoPedido ?? 1) as 1 | 2,
-          mesaNumero: r.mesaNumero ?? r.mesa ?? null,
+          mesaNumero: r.mesaId ?? r.mesa_id ?? r.mesaNumero ?? r.mesa ?? null,
           cliente: r.cliente ?? r.clienteNombre ?? r.nombreCliente ?? r.cliente_nombre ?? '—',
           estado: (r.estado ?? 'RECIBIDO') as any,
           items: this.mapDetalles(r),
@@ -100,8 +102,8 @@ export class OrderService {
       cantidad: it.cantidad ?? it.qty ?? 1,
       nombre: it.nombre ?? it.nombreProducto ?? it.productoNombre ?? it.producto ?? it.descripcion ?? 'Producto',
       nota: it.nota ?? it.observacion ?? it.observaciones ?? it.notas ?? '',
-      productoId: it.productoId ?? it.idProducto ?? it.id,
-      precioUnitario: Number(it.precioUnitario ?? it.precio ?? it.unitPrice ?? 0)
+      productoId: it.productoId ?? it.producto_id ?? it.idProducto ?? it.id,
+      precioUnitario: Number(it.precioUnitario ?? it.precio_unitario ?? it.precio ?? it.unitPrice ?? 0)
     }));
   }
 
@@ -111,7 +113,7 @@ export class OrderService {
         id: r.id ?? r.pedidoId ?? r.noPedido,
         creado_en: r.creado_en ?? r.creadoEn ?? r.creado ?? r.fecha ?? new Date().toISOString(),
         tipo: (r.tipo ?? r.tipoPedido ?? 1) as 1 | 2,
-        mesaNumero: r.mesaNumero ?? r.mesa ?? null,
+        mesaNumero: r.mesaId ?? r.mesa_id ?? r.mesaNumero ?? r.mesa ?? null,
         cliente: r.cliente ?? r.clienteNombre ?? r.nombreCliente ?? r.cliente_nombre ?? '—',
         estado: (r.estado ?? 'RECIBIDO') as any,
         items: this.mapDetalles(r),
@@ -120,6 +122,21 @@ export class OrderService {
         ventaId: r.ventaId ?? r.idVenta ?? r.venta?.id
       }))
     );
+  }
+
+  // Crear pedido (toma de pedido)
+  createPedido(body: any, confirm = false): Observable<any> {
+    // Se espera payload: { tipoServicioId, mesaId?, clienteNombre?, notas?, usuarioId, detalles: [{ productoId, cantidad, observaciones? }] }
+    const url = confirm ? `${this.CREATE_BASE}?confirm=true` : this.CREATE_BASE;
+    return this.http.post<any>(url, body);
+  }
+
+  updatePedido(id: number, body: any): Observable<any> {
+    return this.http.put<any>(`${this.LIST_BASE}/${id}`, body);
+  }
+
+  deletePedido(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.LIST_BASE}/${id}`);
   }
 
   avanzarEstadoLocal(id: number): Pedido {

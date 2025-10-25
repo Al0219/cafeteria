@@ -37,8 +37,8 @@ public class VentaController {
     public ResponseEntity<byte[]> generarTicket(@PathVariable Integer id) {
         byte[] contenido = ventaService.generarTicket(id);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ticket-" + id + ".txt")
-                .contentType(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=ticket-" + id + ".html")
+                .contentType(MediaType.TEXT_HTML)
                 .body(contenido);
     }
 }

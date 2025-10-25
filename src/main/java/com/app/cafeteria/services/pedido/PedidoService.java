@@ -10,9 +10,11 @@ import com.app.cafeteria.entities.enums.EstadoPedido;
 
 public interface PedidoService {
 
-    PedidoResponse crearPedido(PedidoCreateRequest request);
+    PedidoResponse crearPedido(PedidoCreateRequest request, boolean confirm);
 
     List<PedidoResponse> listarPedidos();
+
+    PedidoResponse obtenerPedido(Integer id);
 
     List<PedidoResponse> listarPedidosPorEstado(EstadoPedido estado);
 
@@ -21,4 +23,6 @@ public interface PedidoService {
     PedidoResponse cambiarEstadoCocina(Integer id, EstadoPedido nuevoEstado, Integer usuarioId);
 
     PedidoResponse cerrarPedido(Integer id, PedidoCerrarRequest request);
+
+    void eliminarPedido(Integer id);
 }

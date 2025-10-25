@@ -39,7 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        // No filtrar login ni endpoints públicos de usuarios (desprotegidos)
-        return path.startsWith("/api/auth/login") || path.startsWith("/api/usuarios") || path.startsWith("/api/roles");
+        // En este entorno, desprotegemos todos los endpoints bajo /api
+        return path.startsWith("/api/");
     }
 }
+

@@ -1,15 +1,16 @@
 <section class="wrapper">
-  <nav class="hotbar" aria-label="Módulos">
-    <a class="chip" routerLink="/pedir">PEDIR</a>
-    <a class="chip" routerLink="/pedidos">PEDIDOS</a>
-    <a class="chip active" routerLink="/menu">MENÚ</a>
-    <a class="chip" routerLink="/cocina">COCINA</a>
-    <a class="chip" routerLink="/usuarios">USUARIOS</a>
-    <a class="chip logout" href="#">CERRAR SESIÓN</a>
+  <nav class="hotbar" aria-label="Modulos">
+    <a class="chip" routerLink="/mesas" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">MESAS</a>
+    <a class="chip" routerLink="/pedidos" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">PEDIDOS</a>
+    <a class="chip" routerLink="/pedidos2" *ngIf="auth.hasAny(['CAJERO','ADMIN','GERENTE'])">CAJA</a>
+    <a class="chip active" routerLink="/menu" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">MENUS</a>
+    <a class="chip" routerLink="/cocina" *ngIf="auth.hasAny(['COCINA','ADMIN','GERENTE'])">COCINA</a>
+    <a class="chip" routerLink="/usuarios" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">USUARIOS</a>
+    <a class="chip logout" href="#" (click)="onLogout($event)">CERRAR SESION</a>
   </nav>
 
   <header class="header">
-    <h1>Control del menú</h1>
+    <h1>Control del menu</h1>
     <div class="actions">
       <button class="btn primary" (click)="onCreate()">+ Crear producto</button>
     </div>
@@ -177,3 +178,9 @@
     </div>
   </div>
 </section>
+
+
+
+
+
+

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Product } from './product.model';
+import { environment } from '../../environments/environment';
 
 interface BackendProducto {
   id?: number;
@@ -15,7 +16,7 @@ interface BackendProducto {
   activo?: boolean;
 }
 
-const BASE = '/api/productos';
+const BASE = `${environment.apiBaseUrl}/productos`;
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
@@ -29,6 +30,7 @@ export class ProductService {
       categoriaId: p.categoriaId,
       precio: p.precio,
       stock: p.stock,
+      imagenUrl: p.imagenUrl,
       estado: p.activo === false ? 'Inactivo' : 'Activo',
       descripcion: p.descripcion
     };

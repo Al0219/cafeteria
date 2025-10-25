@@ -1,2 +1,26 @@
 @import '../kitchen/kitchen-list.component.scss';
 
+/* Estilos minimos para modal (alineado al usado en order-take) */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: grid; place-items: center; z-index: 1000; }
+.modal__panel { width: min(520px, 92vw); background: #fff; color: #000; border-radius: .75rem; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 1rem 1.25rem; }
+.modal__panel h3 { margin: 0 0 .5rem 0; font-size: 1.2rem; }
+.modal__panel p { margin: 0 0 .75rem 0; color: #444; }
+.modal__actions { display: flex; justify-content: flex-end; gap: .5rem; }
+.modal__actions .btn,
+.modal__actions .btn.small {
+  padding: .6rem 1rem;   /* un poco mas grande */
+  font-size: .95rem;
+}
+.modal__actions .btn:not(.danger) {
+  border: 0;
+  outline: none;
+  box-shadow: none;
+  background: #fff; /* mismo color que el fondo del modal */
+}
+.btn.small.danger { background: #d9534f; color: #fff; }
+
+/* Color para el boton de eliminar en detalles */
+.btn.small.danger {
+  background: #d9534f;
+  color: #fff;
+}

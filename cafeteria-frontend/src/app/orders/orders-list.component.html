@@ -1,11 +1,12 @@
 <section class="wrapper">
-  <nav class="hotbar" aria-label="Módulos">
-    <a class="chip" routerLink="/pedir">PEDIR</a>
-    <a class="chip active" routerLink="/pedidos">PEDIDOS</a>
-    <a class="chip" routerLink="/menu">MENÚ</a>
-    <a class="chip" routerLink="/cocina">COCINA</a>
-    <a class="chip" routerLink="/usuarios">USUARIOS</a>
-    <a class="chip logout" href="#">CERRAR SESIÓN</a>
+  <nav class="hotbar" aria-label="Modulos">
+    <a class="chip" routerLink="/mesas" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">MESAS</a>
+    <a class="chip active" routerLink="/pedidos" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">PEDIDOS</a>
+    <a class="chip" routerLink="/pedidos2" *ngIf="auth.hasAny(['CAJERO','ADMIN','GERENTE'])">CAJA</a>
+    <a class="chip" routerLink="/menu" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">MENUS</a>
+    <a class="chip" routerLink="/cocina" *ngIf="auth.hasAny(['COCINA','ADMIN','GERENTE'])">COCINA</a>
+    <a class="chip" routerLink="/usuarios" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">USUARIOS</a>
+    <a class="chip logout" href="#" (click)="onLogout($event)">CERRAR SESION</a>
   </nav>
 
   <header class="header">
@@ -82,6 +83,9 @@
                 </ul>
                 <div *ngIf="o.notas" class="subtitle">Notas:</div>
                 <div *ngIf="o.notas">{{ o.notas }}</div>
+                <div class="subtitle" *ngIf="o.estado === 'RECIBIDO'">
+                  <button class="btn small danger" (click)="$event.stopPropagation(); onDelete(o)">Eliminar</button>
+                </div>
               </div>
             </td>
           </tr>
@@ -91,4 +95,20 @@
   </div>
 
   <p class="empty" *ngIf="!loading() && !filtered().length">No hay pedidos para mostrar.</p>
+
+  <!-- Modal de confirmacion de borrado -->
+  <div class="modal" *ngIf="showDelete()">
+    <div class="modal__panel">
+      <h3>Eliminar pedido</h3>
+      <p>Esta accion no se puede deshacer.</p>
+      <div class="modal__actions">
+        <button class="btn" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn small danger" (click)="confirmDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
 </section>
+
+
+
+

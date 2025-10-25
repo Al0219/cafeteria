@@ -5,7 +5,8 @@ import { OrderService } from './order.service';
 import { Pedido } from './order.model';
 import { MesaService } from './mesa.service';
 import { Mesa } from './mesa.model';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-kitchen-list',
@@ -23,6 +24,8 @@ export class KitchenListComponent implements OnInit {
   readonly orders = signal<Pedido[]>([]);
   readonly expanded = signal<Set<number>>(new Set());
   readonly progressingId = signal<number | null>(null);
+  readonly showAdvance = signal(false);
+  private pending: { id: number; from: string; to: string } | null = null;
 
   readonly estados = computed(() => Array.from(new Set(this.orders().map(o => o.estado))));
   readonly mesasApi = signal<Mesa[]>([]);
@@ -49,7 +52,7 @@ export class KitchenListComponent implements OnInit {
       const byMesa = !mesaSel || labelMesa === mesaSel;
       const byCli = (o.cliente || '').toLowerCase().includes(termRaw);
       const byQuery = !term || noPedido || mesaTxt.includes(term) || byCli;
-      const byEstado = !est || o.estado === est;
+      const byEstado = est ? (o.estado === est) : (o.estado !== 'ENTREGADO');
       return byQuery && byEstado && byMesa;
     });
     const dir = this.sortDir();
@@ -62,7 +65,9 @@ export class KitchenListComponent implements OnInit {
 
   constructor(
     private readonly orderService: OrderService,
-    private readonly mesaService: MesaService
+    private readonly mesaService: MesaService,
+    public readonly auth: AuthService,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -99,6 +104,39 @@ export class KitchenListComponent implements OnInit {
     this.sortDir.set(this.sortDir() === 'asc' ? 'desc' : 'asc');
   }
 
+  openAdvance(o: Pedido): void {
+    const estados = ['RECIBIDO', 'PREPARANDO', 'LISTO', 'ENTREGADO'] as const;
+    const idx = estados.indexOf(o.estado as any);
+    const next = estados[Math.min(idx + 1, estados.length - 1)];
+    this.pending = { id: o.id, from: o.estado as any, to: next as any };
+    this.showAdvance.set(true);
+  }
+
+  confirmAdvance(): void {
+    const p = this.pending;
+    if (!p) { this.showAdvance.set(false); return; }
+    const target = this.orders().find(x => x.id === p.id);
+    if (!target) { this.showAdvance.set(false); return; }
+    this.progressingId.set(p.id);
+    this.orderService.avanzarEstado(target, 1).subscribe({
+      next: updated => {
+        this.orders.update(list => list.map(x => x.id === updated.id ? updated : x));
+        this.progressingId.set(null);
+        this.showAdvance.set(false);
+        this.pending = null;
+      },
+      error: err => {
+        console.error('Error avanzando estado', err);
+        this.progressingId.set(null);
+        this.showAdvance.set(false);
+        this.pending = null;
+        alert('No se pudo avanzar el estado');
+      }
+    });
+  }
+
+  cancelAdvance(): void { this.showAdvance.set(false); this.pending = null; }
+
   avanzar(o: Pedido): void {
     // Confirmación antes de avanzar
     const estados = ['RECIBIDO', 'PREPARANDO', 'LISTO', 'ENTREGADO'] as const;
@@ -123,5 +161,11 @@ export class KitchenListComponent implements OnInit {
   onEstadoChange(valor: string): void {
     // Solo ajustar el filtro en cliente; no filtrar por defecto
     this.estadoFilter.set(valor);
+  }
+
+  onLogout(ev: Event): void {
+    ev.preventDefault();
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 }

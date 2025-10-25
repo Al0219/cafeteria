@@ -5,7 +5,8 @@ import { ProductService } from './product.service';
 import { Product } from './product.model';
 import { CategoryService } from './category.service';
 import { Category } from './category.model';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-menu-list',
@@ -59,8 +60,16 @@ export class MenuListComponent implements OnInit {
   constructor(
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    public readonly auth: AuthService,
+    private readonly router: Router
   ) {}
+
+  onLogout(ev: Event): void {
+    ev.preventDefault();
+    this.auth.logout();
+    this.router.navigate(['/']);
+  }
 
   ngOnInit(): void {
     this.productService.getProducts().subscribe(list => {

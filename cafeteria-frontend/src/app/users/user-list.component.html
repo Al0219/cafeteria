@@ -1,11 +1,12 @@
 <section class="wrapper">
-  <nav class="hotbar" #hotbar aria-label="Módulos">
-    <a class="chip" href="#">PEDIR</a>
-    <a class="chip" href="#">PEDIDOS</a>
-    <a class="chip" href="#">MENÚ</a>
-    <a class="chip" href="#">COCINA</a>
-    <a class="chip active" href="#">USUARIOS</a>
-    <a class="chip logout" #logoutChip href="#">CERRAR SESIÓN</a>
+  <nav class="hotbar" #hotbar aria-label="Modulos">
+    <a class="chip" routerLink="/mesas" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">MESAS</a>
+    <a class="chip" routerLink="/pedidos" *ngIf="auth.hasAny(['MESERO','ADMIN','GERENTE'])">PEDIDOS</a>
+    <a class="chip" routerLink="/pedidos2" *ngIf="auth.hasAny(['CAJERO','ADMIN','GERENTE'])">CAJA</a>
+    <a class="chip" routerLink="/menu" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">MENUS</a>
+    <a class="chip" routerLink="/cocina" *ngIf="auth.hasAny(['COCINA','ADMIN','GERENTE'])">COCINA</a>
+    <a class="chip active" routerLink="/usuarios" *ngIf="auth.hasAny(['ADMIN','GERENTE'])">USUARIOS</a>
+    <a class="chip logout" #logoutChip href="#" (click)="onLogout($event)">CERRAR SESION</a>
   </nav>
 
   <header class="header">
@@ -195,3 +196,7 @@
     </div>
   </div>
 </section>
+
+
+
+

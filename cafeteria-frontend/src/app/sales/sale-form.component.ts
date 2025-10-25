@@ -78,10 +78,12 @@ export class SaleFormComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.pedido() || this.form.invalid) { this.form.markAllAsTouched(); return; }
+    // Descuento puede ser 0 (backend permite >= 0)
+    const d = Number(this.form.controls.descuento.value || 0);
     const total = this.total();
     const monto = Number(this.form.controls.monto.value || 0);
     if (monto !== total) {
-      alert(`El monto del pago debe ser exactamente Q ${total.toFixed(2)} (por validación del backend).`);
+      alert(`El monto del pago debe ser exactamente Q ${total.toFixed(2)}.`);
       return;
     }
 
@@ -89,7 +91,7 @@ export class SaleFormComponent implements OnInit {
     const body = {
       pedidoId: this.pedido()!.id,
       cajeroId: 1, // TODO: tomar de sesión cuando exista
-      descuento: Number(this.form.controls.descuento.value || 0),
+      descuento: d,
       propina: Number(this.form.controls.propina.value || 0),
       pago: {
         metodoPagoId: this.form.controls.metodoPagoId.value!,
@@ -105,8 +107,8 @@ export class SaleFormComponent implements OnInit {
           this.saleService.getTicket(id).subscribe({
             next: blob => {
               const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url; a.download = `ticket-${id}.txt`; a.click(); URL.revokeObjectURL(url);
+              window.open(url, '_blank');
+              setTimeout(() => URL.revokeObjectURL(url), 60000);
             }
           });
         }
@@ -116,7 +118,8 @@ export class SaleFormComponent implements OnInit {
       error: err => {
         this.submitting.set(false);
         console.error('Error registrando venta', err);
-        alert('No se pudo registrar la venta');
+        const msg = (err?.error && (err.error.message || err.error.error)) || 'No se pudo registrar la venta';
+        alert(msg);
       }
     });
   }

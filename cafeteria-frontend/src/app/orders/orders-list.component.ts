@@ -1,7 +1,8 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 import { OrderService } from '../kitchen/order.service';
 import { Pedido } from '../kitchen/order.model';
@@ -23,6 +24,8 @@ export class OrdersListComponent implements OnInit {
   readonly sortDir = signal<'asc' | 'desc'>('asc');
   readonly orders = signal<Pedido[]>([]);
   readonly expanded = signal<Set<number>>(new Set());
+  readonly showDelete = signal(false);
+  private pendingToDelete: Pedido | null = null;
 
   readonly estados = computed(() => Array.from(new Set(this.orders().map(o => o.estado))));
   readonly mesasApi = signal<Mesa[]>([]);
@@ -49,7 +52,7 @@ export class OrdersListComponent implements OnInit {
       const byMesa = !mesaSel || labelMesa === mesaSel;
       const byCli = (o.cliente || '').toLowerCase().includes(termRaw);
       const byQuery = !term || noPedido || mesaTxt.includes(term) || byCli;
-      const byEstado = !est || o.estado === est;
+      const byEstado = est ? (o.estado === est) : (o.estado !== 'ENTREGADO');
       return byQuery && byEstado && byMesa;
     });
     const dir = this.sortDir();
@@ -62,7 +65,9 @@ export class OrdersListComponent implements OnInit {
 
   constructor(
     private readonly orderService: OrderService,
-    private readonly mesaService: MesaService
+    private readonly mesaService: MesaService,
+    private readonly router: Router,
+    public readonly auth: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -102,7 +107,40 @@ export class OrdersListComponent implements OnInit {
 
   onEdit(o: Pedido): void {
     if (o.estado !== 'RECIBIDO') return;
-    alert(`Editar pedido ${o.id} (placeholder)`);
+    const params: any = { pedidoId: o.id };
+    if (o.mesaNumero != null) params.mesaId = o.mesaNumero;
+    this.router.navigate(['/pedir'], { queryParams: params });
+  }
+
+  onDelete(o: Pedido): void {
+    if (o.estado !== 'RECIBIDO') return;
+    this.pendingToDelete = o;
+    this.showDelete.set(true);
+  }
+
+  confirmDelete(): void {
+    const o = this.pendingToDelete;
+    if (!o) { this.showDelete.set(false); return; }
+    this.orderService.deletePedido(o.id).subscribe({
+      next: () => {
+        this.orders.update(list => list.filter(p => p.id !== o.id));
+        this.expanded.set(new Set());
+        this.pendingToDelete = null;
+        this.showDelete.set(false);
+      },
+      error: err => {
+        console.error('Error eliminando pedido', err);
+        this.showDelete.set(false);
+        alert(err?.error?.message || err?.message || 'No se pudo eliminar el pedido');
+      }
+    });
+  }
+
+  cancelDelete(): void { this.pendingToDelete = null; this.showDelete.set(false); }
+
+  onLogout(ev: Event): void {
+    ev.preventDefault();
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 }
-
