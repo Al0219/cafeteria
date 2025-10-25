@@ -1,4 +1,6 @@
-﻿export const environment = {
+export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080/api'
+  // En desarrollo usamos el proxy de Angular; las peticiones van a http://localhost:4200/api
+  apiBaseUrl: '/api'
 };
+
